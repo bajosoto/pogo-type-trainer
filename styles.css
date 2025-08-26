@@ -97,6 +97,12 @@ body {
     align-items: center;
     gap: 8px;
     justify-content: center;
+    opacity: 1;
+    transition: opacity 0.4s ease-in-out;
+}
+
+.type-badge.fade-out {
+    opacity: 0;
 }
 
 .type-icon {
@@ -251,7 +257,12 @@ body {
     font-size: 16px;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.2s ease, opacity 0.4s ease;
+    opacity: 0;
+}
+
+.next-btn.show {
+    opacity: 1;
 }
 
 .next-btn:hover {
