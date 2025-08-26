@@ -6,14 +6,17 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>PoGo Type Trainer</title>
+    <title>Attack Type Trainer</title>
     <link rel="stylesheet" href="styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="app-container">
         <header class="header">
-            <h1 class="title">PoGo Type Trainer</h1>
+            <h1 class="title">
+                <img class="title-icon" src="icons/pokeball.svg" alt="Pokeball">
+                Attack Type Trainer
+            </h1>
             <div class="stats">
                 <div class="stat">
                     <span class="stat-label">Streak</span>
@@ -38,10 +41,6 @@
                         <img class="type-icon" src="icons/fairy.svg" alt="Fairy type">
                         <span class="type-name">FAIRY</span>
                     </div>
-                </div>
-
-                <div class="question-text">
-                    How effective is this attack?
                 </div>
 
                 <div class="inline-feedback" id="inline-feedback">
@@ -75,7 +74,7 @@
         </main>
 
         <div class="next-btn-container">
-            <button class="next-btn" id="next-btn">Next Question</button>
+            <button class="next-btn" id="next-btn">Next</button>
         </div>
 
         <footer class="attribution">
