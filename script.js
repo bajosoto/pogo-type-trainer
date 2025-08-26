@@ -22,7 +22,21 @@ const scoreElement = document.getElementById('score');
 // Initialize the game
 function initGame() {
     generateNewQuestion();
-    updateUI();
+
+    // For initial load, update immediately without fade transition
+    attackerElement.className = `type-badge attacker ${gameState.currentAttacker}`;
+    attackerElement.querySelector('.type-icon').src = `icons/${gameState.currentAttacker}.svg`;
+    attackerElement.querySelector('.type-icon').alt = `${gameState.currentAttacker} type`;
+    attackerElement.querySelector('.type-name').textContent = gameState.currentAttacker.toUpperCase();
+
+    defenderElement.className = `type-badge defender ${gameState.currentDefender}`;
+    defenderElement.querySelector('.type-icon').src = `icons/${gameState.currentDefender}.svg`;
+    defenderElement.querySelector('.type-icon').alt = `${gameState.currentDefender} type`;
+    defenderElement.querySelector('.type-name').textContent = gameState.currentDefender.toUpperCase();
+
+    // Update stats
+    streakElement.textContent = gameState.streak;
+    scoreElement.textContent = gameState.score;
 
     // Add event listeners
     answerButtons.forEach(button => {
@@ -50,23 +64,38 @@ function generateNewQuestion() {
     feedbackStatus.textContent = '';
     feedbackExplanation.textContent = '';
 
-    nextButton.style.visibility = 'hidden';
+    // Hide next button instantly (no fade out needed)
+    nextButton.classList.remove('show');
 }
 
-// Update the UI with current question
+// Update the UI with current question using smooth transitions
 function updateUI() {
-    // Update type badges
-    attackerElement.className = `type-badge attacker ${gameState.currentAttacker}`;
-    attackerElement.querySelector('.type-icon').src = `icons/${gameState.currentAttacker}.svg`;
-    attackerElement.querySelector('.type-icon').alt = `${gameState.currentAttacker} type`;
-    attackerElement.querySelector('.type-name').textContent = gameState.currentAttacker.toUpperCase();
+    // Fade out current type badges
+    attackerElement.classList.add('fade-out');
+    defenderElement.classList.add('fade-out');
 
-    defenderElement.className = `type-badge defender ${gameState.currentDefender}`;
-    defenderElement.querySelector('.type-icon').src = `icons/${gameState.currentDefender}.svg`;
-    defenderElement.querySelector('.type-icon').alt = `${gameState.currentDefender} type`;
-    defenderElement.querySelector('.type-name').textContent = gameState.currentDefender.toUpperCase();
+    // After fade out completes, update content and fade in
+    setTimeout(() => {
+        // Update attacker type badge
+        attackerElement.className = `type-badge attacker ${gameState.currentAttacker}`;
+        attackerElement.querySelector('.type-icon').src = `icons/${gameState.currentAttacker}.svg`;
+        attackerElement.querySelector('.type-icon').alt = `${gameState.currentAttacker} type`;
+        attackerElement.querySelector('.type-name').textContent = gameState.currentAttacker.toUpperCase();
 
-    // Update stats
+        // Update defender type badge
+        defenderElement.className = `type-badge defender ${gameState.currentDefender}`;
+        defenderElement.querySelector('.type-icon').src = `icons/${gameState.currentDefender}.svg`;
+        defenderElement.querySelector('.type-icon').alt = `${gameState.currentDefender} type`;
+        defenderElement.querySelector('.type-name').textContent = gameState.currentDefender.toUpperCase();
+
+        // Update stats (no transition needed)
+        streakElement.textContent = gameState.streak;
+        scoreElement.textContent = gameState.score;
+    }, 400); // Wait for fade out to complete
+}
+
+// Update only the stats without touching type badges
+function updateStats() {
     streakElement.textContent = gameState.streak;
     scoreElement.textContent = gameState.score;
 }
@@ -102,12 +131,12 @@ function handleAnswer(event) {
 
     // Show inline feedback
     showInlineFeedback(isCorrect);
-    updateUI();
+    updateStats();
 
-    // Show next button after a delay
+    // Show next button after a delay with fade-in
     setTimeout(() => {
-        nextButton.style.visibility = 'visible';
-    }, 800);
+        nextButton.classList.add('show');
+    }, 400);
 }
 
 // Show inline feedback
