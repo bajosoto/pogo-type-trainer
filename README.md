@@ -12,7 +12,7 @@ A Duolingo-style webapp for learning Pokemon GO type effectiveness! Practice you
 
 ## 🚀 Play Now
 
-Visit the live app: [https://yourusername.github.io/pogo-type-trainer](https://yourusername.github.io/pogo-type-trainer)
+Visit the live app: [https://bajosoto.github.io/pogo-type-trainer](https://bajosoto.github.io/pogo-type-trainer)
 
 ## 📱 How to Play
 
