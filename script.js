@@ -46,6 +46,7 @@ function generateNewQuestion() {
 
     // Reset inline feedback
     inlineFeedback.classList.remove('show');
+    feedbackStatus.style.display = 'flex'; // Reset for next question
     feedbackStatus.textContent = '';
     feedbackExplanation.textContent = '';
 
@@ -111,17 +112,12 @@ function handleAnswer(event) {
 
 // Show inline feedback
 function showInlineFeedback(isCorrect) {
-    const icon = isCorrect ? '✅' : '❌';
-    const text = isCorrect ? 'Correct!' : 'Incorrect!';
+    // Hide the status line completely
+    feedbackStatus.style.display = 'none';
 
-    feedbackStatus.innerHTML = `${icon} ${text}`;
-    feedbackStatus.className = `feedback-status ${isCorrect ? 'correct' : 'incorrect'}`;
-
-    feedbackExplanation.textContent = getExplanation(
-        gameState.currentAttacker,
-        gameState.currentDefender,
-        gameState.correctAnswer
-    );
+    // Show mnemonic with bold keywords (empty string for neutral matchups)
+    const mnemonic = getMnemonic(gameState.currentAttacker, gameState.currentDefender, gameState.correctAnswer);
+    feedbackExplanation.innerHTML = mnemonic;
 
     inlineFeedback.classList.add('show');
 }
@@ -150,37 +146,10 @@ document.addEventListener('keydown', (event) => {
     }
 });
 
-// Add visual feedback for keyboard hints
-function addKeyboardHints() {
-    answerButtons.forEach((button, index) => {
-        const hint = document.createElement('span');
-        hint.className = 'keyboard-hint';
-        hint.textContent = index + 1;
-        hint.style.cssText = `
-            position: absolute;
-            top: 8px;
-            right: 8px;
-            background: rgba(0, 0, 0, 0.1);
-            color: #64748b;
-            font-size: 12px;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-        `;
-
-        button.style.position = 'relative';
-        button.appendChild(hint);
-    });
-}
-
 // Initialize the game when the page loads
 document.addEventListener('DOMContentLoaded', () => {
     initGame();
-    addKeyboardHints();
+    // Removed addKeyboardHints() to clean up the UI
 });
 
 // Add some celebratory effects for streaks
