@@ -5,7 +5,9 @@ let gameState = {
     currentAttacker: null,
     currentDefender: null,
     correctAnswer: null,
-    answered: false
+    answered: false,
+    consecutiveNeutrals: 0,
+    neutralRerollModifier: 1.0
 };
 
 // DOM elements
@@ -48,8 +50,10 @@ function initGame() {
 
 // Generate a new question
 function generateNewQuestion() {
-    gameState.currentAttacker = getRandomType();
-    gameState.currentDefender = getRandomType();
+    // Generate matchup with anti-neutral bias
+    const matchup = generateMatchupWithBias();
+    gameState.currentAttacker = matchup.attacker;
+    gameState.currentDefender = matchup.defender;
     gameState.correctAnswer = getEffectiveness(gameState.currentAttacker, gameState.currentDefender);
     gameState.answered = false;
 
@@ -66,6 +70,40 @@ function generateNewQuestion() {
 
     // Hide next button instantly (no fade out needed)
     nextButton.classList.remove('show');
+}
+
+// Generate a matchup with bias against consecutive neutrals
+function generateMatchupWithBias() {
+    let attacker = getRandomType();
+    let defender = getRandomType();
+    let effectiveness = getEffectiveness(attacker, defender);
+
+    // If it's neutral, check if we should reroll based on consecutive neutrals
+    if (effectiveness === 1) {
+        gameState.consecutiveNeutrals++;
+
+        // Calculate acceptance probability (starts at 1, decreases exponentially)
+        const acceptanceProbability = Math.pow(0.7, gameState.consecutiveNeutrals - 1);
+        const roll = Math.random();
+
+        // If we fail the acceptance roll, reroll once (whatever we get, we keep)
+        if (roll > acceptanceProbability) {
+            console.log(`Rerolling neutral matchup (${gameState.consecutiveNeutrals} consecutive, acceptance: ${acceptanceProbability.toFixed(2)}, rolled: ${roll.toFixed(3)})`);
+            attacker = getRandomType();
+            defender = getRandomType();
+            effectiveness = getEffectiveness(attacker, defender);
+
+            // Reset consecutive neutrals since we rerolled
+            gameState.consecutiveNeutrals = effectiveness === 1 ? 1 : 0;
+        } else {
+            console.log(`Keeping neutral matchup (${gameState.consecutiveNeutrals} consecutive, acceptance: ${acceptanceProbability.toFixed(2)}, rolled: ${roll.toFixed(3)})`);
+        }
+    } else {
+        // Reset consecutive neutrals for non-neutral matchups
+        gameState.consecutiveNeutrals = 0;
+    }
+
+    return { attacker, defender };
 }
 
 // Update the UI with current question using smooth transitions
