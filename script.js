@@ -7,7 +7,10 @@ let gameState = {
     correctAnswer: null,
     answered: false,
     consecutiveNeutrals: 0,
-    neutralRerollModifier: 1.0
+    neutralRerollModifier: 1.0,
+    debugMode: false,
+    debugIndex: 0,
+    debugCombinations: []
 };
 
 // DOM elements
@@ -23,6 +26,16 @@ const scoreElement = document.getElementById('score');
 
 // Initialize the game
 function initGame() {
+    // Check for debug mode
+    const urlParams = new URLSearchParams(window.location.search);
+    gameState.debugMode = urlParams.get('debug') === 'true';
+
+    if (gameState.debugMode) {
+        initDebugMode();
+        console.log('🐛 Debug mode activated! Cycling through all type combinations.');
+        console.log(`Total combinations: ${gameState.debugCombinations.length}`);
+    }
+
     generateNewQuestion();
 
     // For initial load, update immediately without fade transition
@@ -40,6 +53,13 @@ function initGame() {
     streakElement.textContent = gameState.streak;
     scoreElement.textContent = gameState.score;
 
+    // In debug mode, auto-answer the question
+    if (gameState.debugMode) {
+        setTimeout(() => {
+            autoAnswerQuestion();
+        }, 100);
+    }
+
     // Add event listeners
     answerButtons.forEach(button => {
         button.addEventListener('click', handleAnswer);
@@ -48,13 +68,62 @@ function initGame() {
     nextButton.addEventListener('click', nextQuestion);
 }
 
+// Initialize debug mode with all type combinations
+function initDebugMode() {
+    gameState.debugCombinations = [];
+
+    // Generate all combinations sorted alphabetically by attacker, then defender
+    for (const attacker of TYPES.sort()) {
+        for (const defender of TYPES.sort()) {
+            gameState.debugCombinations.push({
+                attacker: attacker,
+                defender: defender,
+                effectiveness: getEffectiveness(attacker, defender)
+            });
+        }
+    }
+
+    gameState.debugIndex = 0;
+}
+
+// Auto-answer the current question in debug mode
+function autoAnswerQuestion() {
+    if (!gameState.debugMode) return;
+
+    // Find the correct answer button
+    const correctButton = Array.from(answerButtons).find(button =>
+        parseFloat(button.dataset.multiplier) === gameState.correctAnswer
+    );
+
+    if (correctButton) {
+        correctButton.click();
+    }
+}
+
 // Generate a new question
 function generateNewQuestion() {
-    // Generate matchup with anti-neutral bias
-    const matchup = generateMatchupWithBias();
-    gameState.currentAttacker = matchup.attacker;
-    gameState.currentDefender = matchup.defender;
-    gameState.correctAnswer = getEffectiveness(gameState.currentAttacker, gameState.currentDefender);
+    if (gameState.debugMode) {
+        // Use debug combinations in sequential order
+        if (gameState.debugIndex >= gameState.debugCombinations.length) {
+            console.log('🎉 Debug mode complete! All combinations tested.');
+            gameState.debugIndex = 0; // Reset to beginning
+        }
+
+        const combo = gameState.debugCombinations[gameState.debugIndex];
+        gameState.currentAttacker = combo.attacker;
+        gameState.currentDefender = combo.defender;
+        gameState.correctAnswer = combo.effectiveness;
+
+        console.log(`Debug ${gameState.debugIndex + 1}/${gameState.debugCombinations.length}: ${gameState.currentAttacker} → ${gameState.currentDefender} (×${gameState.correctAnswer})`);
+        gameState.debugIndex++;
+    } else {
+        // Generate matchup with anti-neutral bias
+        const matchup = generateMatchupWithBias();
+        gameState.currentAttacker = matchup.attacker;
+        gameState.currentDefender = matchup.defender;
+        gameState.correctAnswer = getEffectiveness(gameState.currentAttacker, gameState.currentDefender);
+    }
+
     gameState.answered = false;
 
     // Reset button states
@@ -193,6 +262,13 @@ function showInlineFeedback(isCorrect) {
 function nextQuestion() {
     generateNewQuestion();
     updateUI();
+
+    // Auto-answer in debug mode
+    if (gameState.debugMode) {
+        setTimeout(() => {
+            autoAnswerQuestion();
+        }, 500); // Wait for transitions to complete
+    }
 }
 
 // Add keyboard support
